@@ -1,0 +1,12 @@
+.Footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+.text {
+    color: white;
+    background-color: black;
+    font-size: 1em;
+}
+
