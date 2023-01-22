@@ -1,28 +1,30 @@
 import React, {Component} from "react";
 import "./css/Game.css";
 import Footer from './Components/Footer'
-import countriesJSON from './data/countriesJSON.json'
+import countriesJSON from './data/countryData.json'
 
 class Game extends Component {
 
     // Default props
     static defaultProps = {
         NUM_COUNTRIES: 247,
+        livesRemaining: 3    // TODO: add lives feature
     };
 
     // Constructor: define state
     constructor(props) {
         super(props);
         this.state = {
-            numCountriesCorrect: 0,
+            streak: 0,
             currentCountryAndCapital: this.getNewCountryAndCapital(countriesJSON),
             userAnswer: "",
-            countriesUsed: new Set()  // TODO: use and update this         
+            endGame: false
+            // countriesUsed: new Set()  // TODO: use and update this         
         }
 
         // Bind event handlers
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChangeCapitalForm = this.handleChangeCapitalForm.bind(this);
+        this.handleSubmitCapitalForm = this.handleSubmitCapitalForm.bind(this);
     }
 
     // Function: return random country (and corresponding capital) that has NOT been used before
@@ -67,13 +69,16 @@ class Game extends Component {
     }
 
     // TODO: Function: reset to start a new game
-    reset() {
-
-    }
+    // reset() {
+    //     this.setState({
+    //         endGame: false,
+    //         streak: 0
+    //     });
+    //   }
 
     // Event handlers
     // Handler: handle change
-    handleChange(evt) {
+    handleChangeCapitalForm(evt) {
         // Update userAnswer to be whatever user inputted into input field
         this.setState({
             userAnswer: evt.target.value
@@ -81,22 +86,38 @@ class Game extends Component {
     }
 
     // Handler: handle submit
-    handleSubmit(evt) {
+    handleSubmitCapitalForm(evt) {
         // Prevent default form submit behavior
         evt.preventDefault();
 
         // Check if userAnswer matches correct answer
+        // If userAnswer matches correct answer:
         if(this.state.userAnswer.toLowerCase() === this.state.currentCountryAndCapital[1].toLowerCase()) {
-            // Increment 'numCountriesCorrect' in state
-            this.setState((currentState) => {
-                return {numCountriesCorrect: currentState.numCountriesCorrect + 1}
-            })
+
             // Log
             console.log("CORRECT");
 
+            // Increment 'streak' in state
+            // Continue the game by changing the current country
+            this.setState((currentState) => {
+                return { 
+                    streak: currentState.streak + 1,
+                    currentCountryAndCapital: this.getNewCountryAndCapital(countriesJSON)
+                }
+            })
+            console.log(this.state.currentCountryAndCapital);
+            
+        // If userAnswer does not match correct answer:
         } else {
+            
+            // Set 'endGame' to true
+            this.setState({
+                endGame: true
+            })
+
             // Log
             console.log("WRONG");
+            console.log("endGame", this.state.endGame);
         }
 
         // Reset userAnswer to empty string
@@ -123,19 +144,21 @@ class Game extends Component {
                     <p className="guessHeader col">Capital</p>
                 </div>
 
-                {/* Row: Country print out, Capital input form */}
+                {/* Row: Country print out, capital input form */}
                 <div className="row">
+
+                    {/* Col: Show country name */}
                     <div className="countryName col">
                         <p>{this.state.currentCountryAndCapital[0]}</p>
                     </div>
-
+                    
+                    {/* Col: Show capital input form, game stats */}
                     <div className="guess col">
-                        <form onSubmit={this.handleSubmit} >
-                            {/* <label for="fname">First name:</label> */}
+                        <form onSubmit={this.handleSubmitCapitalForm} >
                             <input 
                                 type="text" 
                                 value={this.state.userAnswer}
-                                onChange={this.handleChange}
+                                onChange={this.handleChangeCapitalForm}
                                 id="answer" 
                                 name="answer" />
                             <br />
@@ -146,19 +169,24 @@ class Game extends Component {
 
                 {/* Row: Stats */}
                 <div className="row">
+                    {/* <div className="col"> */}
+                    {/* No text in left column */}
+                    {/* </div> */}
                     <div className="col">
+                        <p className="streak">Streak: {this.state.streak}</p>
+                        <p>{this.state.endGame ? "WRONG! Game over." : ""}</p>
+                
+                        <input className="btn btn-primary" type="submit" value="Restart"  />
 
-                    </div>
-                    <div className="col">
-                        <p>Number of correct capitals: {this.state.numCountriesCorrect}</p>
                     </div>
                 </div>
 
-                {/* Footer */}    
+                {/* Footer */}  
                 <Footer />         
             </div>
         )
     }
 }
 
+// Export game
 export default Game;
