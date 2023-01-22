@@ -25,7 +25,12 @@ class Game extends Component {
         // Bind event handlers
         this.handleChangeCapitalForm = this.handleChangeCapitalForm.bind(this);
         this.handleSubmitCapitalForm = this.handleSubmitCapitalForm.bind(this);
+        this.handleSubmitRestart = this.handleSubmitRestart.bind(this);
     }
+
+    // ************
+    // Functions
+    // ************
 
     // Function: return random country (and corresponding capital) that has NOT been used before
     getNewCountryAndCapital(countriesJSON) {
@@ -68,15 +73,10 @@ class Game extends Component {
         return countriesObject;
     }
 
-    // TODO: Function: reset to start a new game
-    // reset() {
-    //     this.setState({
-    //         endGame: false,
-    //         streak: 0
-    //     });
-    //   }
-
+    // **************
     // Event handlers
+    // **************
+
     // Handler: handle change
     handleChangeCapitalForm(evt) {
         // Update userAnswer to be whatever user inputted into input field
@@ -110,14 +110,13 @@ class Game extends Component {
         // If userAnswer does not match correct answer:
         } else {
             
+            // Log
+            console.log("WRONG");
+
             // Set 'endGame' to true
             this.setState({
                 endGame: true
             })
-
-            // Log
-            console.log("WRONG");
-            console.log("endGame", this.state.endGame);
         }
 
         // Reset userAnswer to empty string
@@ -126,7 +125,35 @@ class Game extends Component {
         })
     }
 
-    // Render: define logic
+    // Handler:
+    handleSubmitRestart(evt) {
+        // Prevent default form submit behavior
+        evt.preventDefault();
+
+        // Call reset() to reset state values
+        this.reset();
+
+        // Log
+        console.log("Game restarted");
+    }
+
+    // ****************
+    // Helper functions
+    // ****************
+
+    // Function: reset to start a new game
+    reset() {
+        this.setState({
+            endGame: false,
+            streak: 0,
+            currentCountryAndCapital: this.getNewCountryAndCapital(countriesJSON)
+        });
+        console.log("reset()");
+      }
+
+    // ******
+    // Render
+    // ******
     render() {
 
         // Return: define what will be displayed
@@ -154,30 +181,38 @@ class Game extends Component {
                     
                     {/* Col: Show capital input form, game stats */}
                     <div className="guess col">
-                        <form onSubmit={this.handleSubmitCapitalForm} >
-                            <input 
-                                type="text" 
-                                value={this.state.userAnswer}
-                                onChange={this.handleChangeCapitalForm}
-                                id="answer" 
-                                name="answer" />
-                            <br />
-                            <input className="btn btn-success" type="submit" value="Submit" />
-                        </form>
+                        {/* IF game is over, show correct answer */}
+                        {this.state.endGame &&
+                            <p className="capitalName">{this.state.currentCountryAndCapital[1]}</p>
+                        }
+                        {/* IF game is not over, show form and button */}
+                        {!this.state.endGame &&
+                            <form onSubmit={this.handleSubmitCapitalForm} >
+                                <input 
+                                    type="text" 
+                                    value={this.state.userAnswer}
+                                    onChange={this.handleChangeCapitalForm}
+                                    id="answer" 
+                                    name="answer" />
+                                <br />
+                                <input className="btn btn-success" type="submit" value="Submit" />
+                            </form>
+                        }
                     </div>        
                 </div>   
 
                 {/* Row: Stats */}
                 <div className="row">
-                    {/* <div className="col"> */}
-                    {/* No text in left column */}
-                    {/* </div> */}
+
+                    {/* Col: Stats */}
                     <div className="col">
                         <p className="streak">Streak: {this.state.streak}</p>
                         <p>{this.state.endGame ? "WRONG! Game over." : ""}</p>
                 
-                        <input className="btn btn-primary" type="submit" value="Restart"  />
-
+                        {/* Button: Restart */}
+                        <form onSubmit={this.handleSubmitRestart} >
+                            <input className="btn btn-primary" type="submit" value="Restart" />
+                        </form>
                     </div>
                 </div>
 
