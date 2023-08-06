@@ -1,5 +1,4 @@
 import { Component } from 'react';
-// import Home from "./Home"
 import Game from "./Game";
 import './css/App.css';
 
